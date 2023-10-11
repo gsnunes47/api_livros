@@ -13,11 +13,15 @@ def obter_livro():
         livros.append(l)
     return jsonify(livros)
 
-# @app.route('/livros', methods=['POST'])
-# def obter_livro():
-#     livro_novo = request.get_json()
-
-#     return jsonify(livros)
+@app.route('/livros', methods=['POST'])
+def criar_novo_livro():
+    livro_novo = request.get_json()
+    livro = Livros(id=livro_novo['id'], autor=livro_novo['autor'], titulo=livro_novo['titulo'])
+    database.session.add(livro)
+    database.session.commit()
+    livro_json = Livros.query.filter_by(titulo=livro_novo['titulo']).first().__dict__
+    treat = livro_json.pop('_sa_instance_state')
+    return jsonify(livro_json)
 
 @app.route('/livros/<id>', methods=['GET'])
 def obter_livro_por_id(id):
