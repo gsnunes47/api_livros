@@ -30,7 +30,7 @@ def obter_livro_por_id(id):
     return jsonify(livro)
 
 @app.route('/livros/<id>', methods=['PUT'])
-def editar_livro_por_id(id):
+def editar_livro(id):
     livro_alterado = request.get_json()
     livro = Livros.query.filter_by(id=id).first()
     livro.autor = livro_alterado['autor']
@@ -40,4 +40,15 @@ def editar_livro_por_id(id):
     treat = livro.pop('_sa_instance_state')
     return jsonify(livro)
 
-
+@app.route('/livros/<id>', methods=['DELETE'])
+def deletar_livro(id):
+    livro = Livros.query.filter_by(id=id).first()
+    database.session.delete(livro)
+    database.session.commit()
+    livros = []
+    livros_query = Livros.query.all()
+    for l in livros_query:
+        l = l.__dict__
+        treat = l.pop('_sa_instance_state')
+        livros.append(l)
+    return jsonify(livros)
