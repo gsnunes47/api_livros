@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from biblioteca import app, database
 from biblioteca.models import Livros
+import json
 
 @app.route('/livros', methods=['GET'])
 def obter_livro():
@@ -16,7 +17,8 @@ def obter_livro():
 @app.route('/livros', methods=['POST'])
 def criar_novo_livro():
     livro_novo = request.get_json()
-    livro = Livros(id=livro_novo['id'], autor=livro_novo['autor'], titulo=livro_novo['titulo'])
+    livro_novo = json.loads(livro_novo)
+    livro = Livros(autor=livro_novo['autor'], titulo=livro_novo['titulo'])
     database.session.add(livro)
     database.session.commit()
     livro_json = Livros.query.filter_by(titulo=livro_novo['titulo']).first().__dict__
@@ -32,6 +34,7 @@ def obter_livro_por_id(id):
 @app.route('/livros/<id>', methods=['PUT'])
 def editar_livro(id):
     livro_alterado = request.get_json()
+    livro_alterado = json.loads(livro_alterado)
     livro = Livros.query.filter_by(id=id).first()
     livro.autor = livro_alterado['autor']
     livro.titulo = livro_alterado['titulo']
